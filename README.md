@@ -2,6 +2,8 @@
 
 A production-ready AI application combining document management, vector search, and multi-model AI capabilities to provide intelligent, context-aware responses.
 
+This is an application designed for educational purposes. It's likely that we could find better alternatives for all of its functionalities on the internet.
+
 ## 🚀 Core Features
 
 ### **Chat & AI Integration**
