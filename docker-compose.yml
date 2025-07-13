@@ -1,13 +1,113 @@
+version: '3.8'
+
 services:
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.frontend.dev
+    container_name: ai-agent-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app/Frontend/src:/app/src
+      - ./app/Frontend/public:/app/public
+      - ./app/Frontend/package.json:/app/package.json
+      - ./app/Frontend/tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8008
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    networks:
+      - ai-agent-network
+    depends_on:
+      - web
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-agent-web
     ports:
       - "8008:8000"
     volumes:
-      - ./app:/code/app
-      - ./tests:/code/tests
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      - ./app:/code/app:ro
+      - ./tests:/code/tests:ro
+      - ./Corpus:/code/Corpus
+    command: uvicorn app.API.main:app --host 0.0.0.0 --port 8000 --reload
     env_file:
-      - ./.env
+      - ./app/API/.env
     environment:
       - PYTHONPATH=/code
+      - DB_HOST=postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - ai-agent-network
+    depends_on:
+      - postgres
+      - qdrant
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-agent-postgres
+    environment:
+      POSTGRES_DB: ai_agent_db
+      POSTGRES_USER: ai_agent
+      POSTGRES_PASSWORD: ai_agent_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_agent -d ai_agent_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-agent-network
+
+  qdrant:
+    image: qdrant/qdrant:v1.7.0
+    container_name: ai-agent-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-agent-network
+
+networks:
+  ai-agent-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  qdrant_data:

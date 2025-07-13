@@ -1,8 +1,0 @@
-fastapi
-uvicorn[standard]
-pytest
-httpx
-openai
-pydantic-settings
-pydantic
-pytest-asyncio
