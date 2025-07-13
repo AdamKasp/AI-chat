@@ -116,6 +116,8 @@ Code analysis in the `app/API` directory revealed several areas requiring improv
    - Standardize logging levels
    - Add context to logs
 
+6. **Fix problem with UI**
+
 ### Low Priority
 1. **Consider relative imports** within modules
 2. **Add type checking** with mypy
