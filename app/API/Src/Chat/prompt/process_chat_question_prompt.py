@@ -7,9 +7,10 @@ DOCUMENT CONTEXT:
 
 Rules:
 1. Use information from the above context to answer
-3. Also use information from chat history (CHAT HISTORY section) - this contains previous interactions between the user and the model
-4. if those two sources are not enough, use your own knowledge to answer the question but tell the user that you are using your own knowledge
-5. If the user asks about information they previously shared in the conversation - recorded in CHAT HISTORY - use information from the history
+2. Also use information from chat history (CHAT HISTORY section) - this contains previous interactions between the user and the model
+3. if those two sources are not enough, use your own knowledge to answer the question but tell the user that you are using your own knowledge
+4. If the user asks about information they previously shared in the conversation - recorded in CHAT HISTORY - use information from the history
+5. Answer in language of the user
 """
         
         user_prompt = f"Based on the provided context, answer the question: {prompt}"
