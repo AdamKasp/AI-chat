@@ -85,3 +85,23 @@ class ChatRepository:
             .offset(offset)
         )
         return result.scalars().all(), total
+    
+    async def get_by_id(self, chat_id: UUID) -> Optional[ChatHistory]:
+        """Get chat by ID"""
+        result = await self.session.execute(
+            select(ChatHistory).where(ChatHistory.id == chat_id)
+        )
+        return result.scalar_one_or_none()
+    
+    async def delete(self, chat_id: UUID) -> None:
+        """Delete a chat"""
+        try:
+            chat = await self.get_by_id(chat_id)
+            if chat:
+                await self.session.delete(chat)
+                await self.session.commit()
+                logger.info(f"Deleted chat {chat_id}")
+        except Exception as e:
+            await self.session.rollback()
+            logger.error(f"Error deleting chat {chat_id}: {str(e)}")
+            raise

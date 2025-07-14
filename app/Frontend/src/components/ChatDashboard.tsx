@@ -111,6 +111,28 @@ const ChatDashboard: React.FC<ChatDashboardProps> = ({ selectedUser }) => {
     }
   };
 
+  const handleDeleteChat = async (chatId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      await chatApi.deleteChat(chatId);
+      
+      // Remove the deleted chat from the list
+      setChats(prevChats => prevChats.filter(chat => chat.id !== chatId));
+      
+      // If the deleted chat was selected, clear the selection
+      if (selectedChat?.id === chatId) {
+        setSelectedChat(null);
+      }
+    } catch (err) {
+      setError('Failed to delete chat. Please try again.');
+      console.error('Error deleting chat:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadChats();
   }, [selectedUser]);
@@ -146,6 +168,7 @@ const ChatDashboard: React.FC<ChatDashboardProps> = ({ selectedUser }) => {
                 chats={chats}
                 selectedChat={selectedChat}
                 onChatSelect={handleChatSelect}
+                onChatDelete={handleDeleteChat}
                 loading={loading}
               />
             </Card.Body>
@@ -170,6 +193,7 @@ const ChatDashboard: React.FC<ChatDashboardProps> = ({ selectedUser }) => {
                 <ChatWindow 
                   chat={selectedChat} 
                   onSendMessage={handleSendMessage}
+                  onDeleteChat={() => handleDeleteChat(selectedChat.id)}
                   loading={loading}
                 />
               ) : (

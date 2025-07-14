@@ -47,6 +47,11 @@ export const chatApi = {
     const response = await api.get<ChatResponse>(`/chats/${chatId}`);
     return response.data;
   },
+
+  // DELETE /chats/{chat_id} - Delete chat and all associated messages
+  deleteChat: async (chatId: string): Promise<void> => {
+    await api.delete(`/chats/${chatId}`);
+  },
 };
 
 export default chatApi;

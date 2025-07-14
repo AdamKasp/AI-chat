@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ListGroup, Badge } from 'react-bootstrap';
+import { ListGroup, Badge, Button } from 'react-bootstrap';
 import { ChatResponse } from '../types/chat';
 import { UserResponse } from '../types/user';
 import { userApi } from '../services/userApi';
@@ -8,6 +8,7 @@ interface ChatListProps {
   chats: ChatResponse[];
   selectedChat: ChatResponse | null;
   onChatSelect: (chatId: string) => void;
+  onChatDelete?: (chatId: string) => void;
   loading: boolean;
 }
 
@@ -15,6 +16,7 @@ const ChatList: React.FC<ChatListProps> = ({
   chats,
   selectedChat,
   onChatSelect,
+  onChatDelete,
   loading,
 }) => {
   const [users, setUsers] = useState<{ [key: string]: UserResponse }>({});
@@ -106,18 +108,38 @@ const ChatList: React.FC<ChatListProps> = ({
           key={chat.id}
           action
           active={selectedChat?.id === chat.id}
-          onClick={() => onChatSelect(chat.id)}
-          className="chat-list-item border-0"
+          className="chat-list-item border-0 position-relative"
           style={{ cursor: 'pointer' }}
         >
-          <div className="d-flex flex-column">
+          <div 
+            className="d-flex flex-column"
+            onClick={() => onChatSelect(chat.id)}
+          >
             <div className="d-flex justify-content-between align-items-start mb-1">
               <h6 className="mb-0 chat-title">
                 {truncateText(getLastUserMessage(chat)) || 'Untitled Chat'}
               </h6>
-              <Badge bg="light" text="muted" className="ms-2">
-                {formatTime(chat.updated_at || chat.created_at)}
-              </Badge>
+              <div className="d-flex align-items-center">
+                <Badge bg="light" text="muted" className="ms-2">
+                  {formatTime(chat.updated_at || chat.created_at)}
+                </Badge>
+                {onChatDelete && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-danger p-0 ms-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('Are you sure you want to delete this chat?')) {
+                        onChatDelete(chat.id);
+                      }
+                    }}
+                    title="Delete chat"
+                  >
+                    <i className="bi bi-trash"></i>
+                  </Button>
+                )}
+              </div>
             </div>
             <div className="d-flex justify-content-between align-items-center mb-1">
               <small className="text-primary">

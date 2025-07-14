@@ -5,10 +5,11 @@ import { ChatResponse, Message } from '../types/chat';
 interface ChatWindowProps {
   chat: ChatResponse;
   onSendMessage?: (message: string) => void;
+  onDeleteChat?: () => void;
   loading?: boolean;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ chat, onSendMessage, loading = false }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ chat, onSendMessage, onDeleteChat, loading = false }) => {
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +70,25 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat, onSendMessage, loading = 
 
   return (
     <div className="chat-window h-100 d-flex flex-column">
+      {/* Chat Header with Delete Button */}
+      <div className="chat-header border-bottom pb-2 mb-3 d-flex justify-content-between align-items-center">
+        <h5 className="mb-0">Chat</h5>
+        {onDeleteChat && (
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={() => {
+              if (window.confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+                onDeleteChat();
+              }
+            }}
+          >
+            <i className="bi bi-trash me-1"></i>
+            Delete Chat
+          </Button>
+        )}
+      </div>
+      
       <div className="chat-messages flex-grow-1 overflow-auto">
         {chat.messages && chat.messages.length > 0 ? (
           chat.messages.map((message, index) => renderMessage(message, index))

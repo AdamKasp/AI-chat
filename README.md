@@ -109,6 +109,7 @@ curl http://localhost:8008/health
 - `GET /chat/list` - Get all chats (with pagination)
 - `GET /chat/{chat_id}` - Get specific chat with history
 - `POST /chat/{chat_id}/message` - Send message in chat
+- `DELETE /chat/{chat_id}` - Delete chat and all associated messages
 
 ### **Document Management**
 - `POST /document/upload` - Upload markdown document

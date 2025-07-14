@@ -6,6 +6,7 @@ from app.API.Src.core.database.Postgres.database import get_db_session
 from app.API.Src.Chat.controller.create_chat import CreateChatController
 from app.API.Src.Chat.controller.get_chat_list import GetChatListController
 from app.API.Src.Chat.controller.get_chat import GetChatController
+from app.API.Src.Chat.controller.delete_chat import DeleteChatController
 from app.API.Src.Chat.request.chat_request import ChatRequest
 from app.API.Src.core.ExternalApiHelper.model.ai_response import AiResponse
 from app.API.Src.Chat.response.chat_list_response import ChatListResponse
@@ -24,3 +25,7 @@ async def get_chats(limit: int = Query(default=100, le=1000), offset: int = Quer
 @router.get("/chats/{chat_id}", response_model=ChatResponse, tags=["Chat"])
 async def get_chat(chat_id: UUID, db: AsyncSession = Depends(get_db_session)):
     return await GetChatController.get_chat(chat_id, db)
+
+@router.delete("/chats/{chat_id}", tags=["Chat"])
+async def delete_chat(chat_id: UUID, db: AsyncSession = Depends(get_db_session)):
+    return await DeleteChatController.delete_chat(chat_id, db)

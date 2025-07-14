@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy import delete
 from uuid import UUID
 from typing import List, Optional
 from app.API.Src.Chat.models.message import Message
@@ -63,3 +64,16 @@ class MessageRepository:
         except Exception as e:
             logger.error(f"Error fetching recent messages for chat_id {chat_id}: {str(e)}")
             return []
+    
+    async def delete_by_chat_id(self, chat_id: UUID) -> None:
+        """Delete all messages associated with a chat"""
+        try:
+            await self.db.execute(
+                delete(Message).where(Message.chat_id == chat_id)
+            )
+            await self.db.commit()
+            logger.info(f"Deleted all messages for chat {chat_id}")
+        except Exception as e:
+            await self.db.rollback()
+            logger.error(f"Error deleting messages for chat {chat_id}: {str(e)}")
+            raise
